@@ -1,0 +1,11 @@
+.profit {
+  color: rgb(75, 192, 120);
+}
+
+.loss {
+  color: rgba(255, 99, 132);
+}
+
+.accent {
+  font-size: 14px;
+}

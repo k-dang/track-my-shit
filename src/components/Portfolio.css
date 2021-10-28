@@ -1,0 +1,34 @@
+.chart {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.header-row {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.row-item {
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  margin: 0 20px;
+}
+
+.portfolio-table {
+  color: white;
+  border-spacing: 0
+}
+
+.portfolio-table thead tr th {
+  font-weight: 500;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px;
+}
+
+.portfolio-table tbody tr td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
