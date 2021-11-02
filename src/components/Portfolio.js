@@ -1,15 +1,29 @@
 import { useState, useEffect } from 'react';
 
 // components
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import Divider from './Divider';
 import Number from './Number';
 import './Portfolio.css';
+import CustomToggleButton from './CustomToggleButton';
+import CustomToggleButtonGroup from './CustomToggleButtonGroup';
+import PortfolioTable from './PortfolioTable';
 
 // services
-import { getDailyBalances } from '../services/portfolioService';
+import {
+  getDailyBalances,
+  getMonthlyBalances,
+} from '../services/portfolioService';
 
 const options = {
+  plugins: {
+    legend: {
+      display: false,
+    },
+  },
+};
+
+const barOptions = {
   plugins: {
     legend: {
       display: false,
@@ -23,11 +37,19 @@ const Portfolio = () => {
   const [totalInvested, setTotalInvested] = useState(0);
   const [realizedGains, setRealizedGains] = useState(0);
   const [portfolio, setPortfolio] = useState({});
+  const [alignment, setAlignment] = useState(false);
+  const [dividends, setDividends] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { portfolio, totalInvested, realizedGains, labels, balances } =
-        await getDailyBalances();
+      const {
+        portfolio,
+        totalInvested,
+        realizedGains,
+        labels,
+        balances,
+        dividends,
+      } = await getDailyBalances();
       setLastBalance(balances[balances.length - 1]);
       setRealizedGains(realizedGains);
       setTotalInvested(totalInvested);
@@ -44,12 +66,31 @@ const Portfolio = () => {
           },
         ],
       });
+
+      setDividends({
+        labels: labels,
+        datasets: [
+          {
+            label: 'Dividends',
+            data: dividends,
+            backgroundColor: 'rgb(54, 162, 235)',
+          },
+        ],
+      });
     };
     fetchData();
   }, []);
 
   const openPL = (lastBalance - totalInvested).toFixed(2);
   const overallPL = (lastBalance - totalInvested + realizedGains).toFixed(2);
+
+  const handleChange = async (event, newValue) => {
+    if (newValue != null) {
+      console.log(newValue);
+      setAlignment(newValue);
+      // await getMonthlyBalances();
+    }
+  };
 
   return (
     <div className="chart">
@@ -69,7 +110,7 @@ const Portfolio = () => {
             isSmall={true}
           ></Number>
         </div>
-        <Divider></Divider>
+        <Divider />
         <div className="row-item">
           Overall P&L
           <Number number={overallPL} neutral={false}></Number>
@@ -81,32 +122,24 @@ const Portfolio = () => {
           ></Number>
         </div>
       </div>
+      <h2>Portfolio</h2>
       {data ? <Line data={data} options={options} /> : null}
 
-      <table className="portfolio-table">
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Shares</th>
-            <th>Market Price</th>
-            <th>Average Price</th>
-            <th>Market Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.keys(portfolio).map((key, i) => (
-            <tr key={i}>
-              <td>{key}</td>
-              <td>{portfolio[key]['quantity']}</td>
-              <td>{portfolio[key]['marketPrice']}</td>
-              <td>{portfolio[key]['averagePrice'].toFixed(2)}</td>
-              <td>
-                {(portfolio[key]['marketPrice'] * portfolio[key]['quantity']).toFixed(2)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h2>Dividends</h2>
+      {dividends ? <Bar data={dividends} options={barOptions} /> : null}
+
+      <CustomToggleButtonGroup
+        color="primary"
+        size="small"
+        value={alignment}
+        exclusive
+        onChange={handleChange}
+      >
+        <CustomToggleButton value="default">3M</CustomToggleButton>
+        <CustomToggleButton value="year">1Y</CustomToggleButton>
+      </CustomToggleButtonGroup>
+
+      <PortfolioTable portfolio={portfolio} />
     </div>
   );
 };

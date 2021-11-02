@@ -30,7 +30,6 @@ export const getMultipleTimeSeriesDailyAdjusted = async (symbols) => {
 };
 
 export const getTimeSeriesWeeklyAdjusted = async (symbol) => {
-  // this is alot of data points
   const response = await alphavantage.get(
     `/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=${symbol}&apikey=${config.apiKey}`
   );
@@ -39,3 +38,11 @@ export const getTimeSeriesWeeklyAdjusted = async (symbol) => {
   return result;
 };
 
+export const getTimeSeriesMonthlyAdjusted = async (symbol) => {
+  const response = await alphavantage.get(
+    `/query?function=TIME_SERIES_MONTHLY_ADJUSTED&symbol=${symbol}&apikey=${config.apiKey}`
+  );
+
+  const result = response.data['Monthly Adjusted Time Series'];
+  return result;
+};

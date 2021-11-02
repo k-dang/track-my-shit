@@ -1,7 +1,11 @@
-import { getMultipleTimeSeriesDailyAdjusted } from './alphavantageService';
+import {
+  getMultipleTimeSeriesDailyAdjusted,
+  getTimeSeriesMonthlyAdjusted,
+} from './alphavantageService';
 import { getDateRange } from './dateService';
 import subMonths from 'date-fns/subMonths';
 import format from 'date-fns/format';
+import parse from 'date-fns/parse';
 
 // mock data
 import myData from '../mock/mydata.json';
@@ -39,6 +43,7 @@ export const getDailyBalances = async () => {
 
   const labels = [];
   const balances = [];
+  const dividends = [];
   const portfolio = {};
   let realizedGains = 0;
 
@@ -85,25 +90,30 @@ export const getDailyBalances = async () => {
     }
 
     let dailyBalance = 0;
+    let dailyDividends = 0;
     // check out entire portfolio and calculate for every symbol
+    // check if that date has any price changes and adjust with closing prices
     for (const [symbol, detail] of Object.entries(portfolio)) {
       const tickerData = timeSeriesBySymbol[symbol][date];
       const closing = tickerData['4. close'];
       const dividendRate = tickerData['7. dividend amount'];
+
       if (dividendRate > 0) {
         const dividend = dividendRate * detail['quantity'];
         realizedGains += dividend;
+        dailyDividends += dividend;
       }
 
       dailyBalance += detail['quantity'] * closing;
 
       // TODO account for stock splits
+      // stock splits change quantity & price
     }
 
-    // check if that date has any price changes and adjust with closing prices
     // push total after everyday
     labels.push(date);
     balances.push(dailyBalance);
+    dividends.push(dailyDividends);
   });
 
   // calculate total invested at the end
@@ -112,8 +122,9 @@ export const getDailyBalances = async () => {
     totalInvested += info['averagePrice'] * info['quantity'];
 
     // store market value as well
-    const lastDate = Object.keys(timeSeriesBySymbol[symbol])[0]
-    portfolio[symbol]['marketPrice'] = timeSeriesBySymbol[symbol][lastDate]['4. close']
+    const lastDate = Object.keys(timeSeriesBySymbol[symbol])[0];
+    portfolio[symbol]['marketPrice'] =
+      timeSeriesBySymbol[symbol][lastDate]['4. close'];
   }
 
   return {
@@ -122,5 +133,25 @@ export const getDailyBalances = async () => {
     realizedGains: realizedGains,
     labels: labels,
     balances: balances,
+    dividends: dividends,
   };
+};
+
+export const getMonthlyBalances = async () => {
+  const { uniqueSymbols, transactionsByDate } = parseBrokerData();
+  
+  const monthlyTimeSeries = await getTimeSeriesMonthlyAdjusted('IBM');
+  
+  // just get 12 months worth
+  const closest12Dates = Object.keys(monthlyTimeSeries).slice(0, 12);
+
+  closest12Dates.forEach((date) => {
+    const dateObject = parse(date, 'yyyy-MM-dd', new Date());
+    console.log(dateObject.getFullYear(), dateObject.getMonth());
+
+    // do a cum sum for the month for the transactions,
+    // cum sum the quantity, need to calculate realized gains along the way too
+  });
+
+  // need to parse broker data into months, see if match
 };
