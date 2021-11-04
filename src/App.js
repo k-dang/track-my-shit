@@ -1,14 +1,26 @@
-import "./App.css";
-import { Routes, Route } from "react-router-dom";
-import Portfolio from "./components/Portfolio";
-import AddStock from "./components/AddStock";
-import Header from "./components/Header";
+import './App.css';
+import { Routes, Route } from 'react-router-dom';
+import Portfolio from './components/Portfolio';
+import AddStock from './components/AddStock';
+import Header from './components/Header';
+
+// Header names and routes for router
+const headerData = [
+  {
+    label: 'Portfolio',
+    href: '/',
+  },
+  {
+    label: 'Add Stock',
+    href: '/add',
+  },
+];
 
 function App() {
   return (
     <div className="container">
       <Routes>
-        <Route path="/" element={<Header />}>
+        <Route path="/" element={<Header headerData={headerData} />}>
           <Route index element={<Portfolio />} />
           <Route path="add" element={<AddStock />} />
         </Route>
