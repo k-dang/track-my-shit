@@ -14,6 +14,7 @@ import {
   getDailyBalances,
   getMonthlyBalances,
 } from '../services/portfolioService';
+import { getDailyPricesGoApi } from '../services/goService';
 
 const options = {
   plugins: {
@@ -78,7 +79,9 @@ const Portfolio = () => {
         ],
       });
     };
+
     fetchData();
+    getDailyPricesGoApi('AAPL');
   }, []);
 
   const openPL = (lastBalance - totalInvested).toFixed(2);
@@ -88,6 +91,7 @@ const Portfolio = () => {
     if (newValue != null) {
       console.log(newValue);
       setAlignment(newValue);
+      // TODO handle later
       // await getMonthlyBalances();
     }
   };

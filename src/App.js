@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 import './App.css';
 import { Routes, Route } from 'react-router-dom';
 import Portfolio from './components/Portfolio';
@@ -16,17 +18,33 @@ const headerData = [
   },
 ];
 
-function App() {
+const App = () => {
+  const [isGoLoaded, setIsGoLoaded] = useState(false);
+
+  useEffect(() => {
+    WebAssembly.instantiateStreaming(
+      fetch('alphaVantageApi.wasm'),
+      window.go.importObject
+    ).then((result) => {
+      window.go.run(result.instance);
+      setIsGoLoaded(true);
+    });
+  }, []);
+
   return (
     <div className="container">
-      <Routes>
-        <Route path="/" element={<Header headerData={headerData} />}>
-          <Route index element={<Portfolio />} />
-          <Route path="add" element={<AddStock />} />
-        </Route>
-      </Routes>
+      {isGoLoaded ? (
+        <Routes>
+          <Route path="/" element={<Header headerData={headerData} />}>
+            <Route index element={<Portfolio />} />
+            <Route path="add" element={<AddStock />} />
+          </Route>
+        </Routes>
+      ) : (
+        <div>Loading ...</div>
+      )}
     </div>
   );
-}
+};
 
 export default App;
