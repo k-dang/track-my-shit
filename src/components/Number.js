@@ -5,7 +5,7 @@ const Number = ({ number, neutral, isPercent, isSmall }) => {
     return <div>{number}</div>;
   }
   const isPositive = number > 0;
-  const symbol = isPositive ? '+' : '-';
+  const symbol = isPositive ? '+' : '';
 
   return (
     <div
