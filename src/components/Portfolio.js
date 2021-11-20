@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 
 // components
-import { Line, Bar } from 'react-chartjs-2';
-import Divider from './Divider';
-import Number from './Number';
 import './Portfolio.css';
+import { Line, Bar } from 'react-chartjs-2';
 import CustomToggleButton from './mui-overrides/CustomToggleButton';
 import CustomToggleButtonGroup from './mui-overrides/CustomToggleButtonGroup';
 import PortfolioTable from './PortfolioTable';
+import PortfolioDetails from './PortfolioDetails';
 import { Grid } from '@mui/material';
 
 // services
@@ -88,9 +87,6 @@ const Portfolio = () => {
     // getDailyPricesGoApi('AAPL');
   }, []);
 
-  const openPL = (lastBalance - totalInvested).toFixed(2);
-  const overallPL = (lastBalance - totalInvested + realizedGains).toFixed(2);
-
   const handleChange = async (event, newValue) => {
     if (newValue != null) {
       console.log(newValue);
@@ -101,35 +97,13 @@ const Portfolio = () => {
   };
 
   return (
-    <div className="chart">
-      <div className="header-row">
-        <div className="row-item">
-          <span>Portfolio Value</span>
-          <Number number={lastBalance.toFixed(2)}></Number>
-        </div>
-        <Divider />
-        <div className="row-item">
-          <span>Open P&L</span>
-          <Number number={openPL} neutral={false}></Number>
-          <Number
-            number={((openPL / totalInvested) * 100).toFixed(2)}
-            neutral={false}
-            isPercent={true}
-            isSmall={true}
-          ></Number>
-        </div>
-        <Divider />
-        <div className="row-item">
-          <span>Overall P&L</span>
-          <Number number={overallPL} neutral={false}></Number>
-          <Number
-            number={((overallPL / totalInvested) * 100).toFixed(2)}
-            neutral={false}
-            isPercent={true}
-            isSmall={true}
-          ></Number>
-        </div>
-      </div>
+    <div className="portfolio-container">
+      <PortfolioDetails
+        lastBalance={lastBalance}
+        totalInvested={totalInvested}
+        realizedGains={realizedGains}
+      />
+
       <h2>Portfolio</h2>
       {data ? <Line data={data} options={lineOptions} /> : null}
 

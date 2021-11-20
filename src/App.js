@@ -6,6 +6,8 @@ import Portfolio from './components/Portfolio';
 import AddStock from './components/AddStock';
 import Header from './components/Header';
 
+import { Box, CircularProgress } from '@mui/material';
+
 // Header names and routes for router
 const headerData = [
   {
@@ -53,7 +55,9 @@ const App = () => {
           </Route>
         </Routes>
       ) : (
-        <div>Loading ...</div>
+        <div className="loading-container">
+          <CircularProgress />
+        </div>
       )}
     </div>
   );

@@ -1,19 +1,6 @@
-.chart {
+.portfolio-container {
   max-width: 1200px;
   margin: auto;
-}
-
-.header-row {
-  display: flex;
-  margin-bottom: 20px;
-}
-
-.row-item {
-  color: white;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  margin: 0 20px;
 }
 
 h2 {

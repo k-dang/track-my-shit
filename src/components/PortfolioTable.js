@@ -46,7 +46,7 @@ const PortfolioTable = ({ portfolio }) => {
 
   return (
     <StyledEngineProvider injectFirst>
-      <div className="portfolio-container">
+      <div className="table-container">
         <DataGrid
           rows={rows}
           columns={columns}
