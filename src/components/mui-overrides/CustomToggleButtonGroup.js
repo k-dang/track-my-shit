@@ -1,10 +1,8 @@
 import { styled } from '@mui/material/styles';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { ToggleButtonGroup } from '@mui/material';
 
 const CustomToggleButtonGroup = styled(ToggleButtonGroup)({
-  '.MuiToggleButtonGroup-grouped': {
-    // margin: '0 10px',
-  },
+  margin: '10px 0',
   '.MuiToggleButtonGroup-grouped:not(:last-of-type)': {
     borderRadius: 4,
   },

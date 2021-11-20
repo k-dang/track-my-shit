@@ -5,9 +5,10 @@ import { Line, Bar } from 'react-chartjs-2';
 import Divider from './Divider';
 import Number from './Number';
 import './Portfolio.css';
-import CustomToggleButton from './CustomToggleButton';
-import CustomToggleButtonGroup from './CustomToggleButtonGroup';
+import CustomToggleButton from './mui-overrides/CustomToggleButton';
+import CustomToggleButtonGroup from './mui-overrides/CustomToggleButtonGroup';
 import PortfolioTable from './PortfolioTable';
+import { Grid } from '@mui/material';
 
 // services
 import {
@@ -16,7 +17,7 @@ import {
 } from '../services/portfolioService';
 import { getDailyPricesGoApi } from '../services/goService';
 
-const options = {
+const lineOptions = {
   plugins: {
     legend: {
       display: false,
@@ -38,7 +39,7 @@ const Portfolio = () => {
   const [totalInvested, setTotalInvested] = useState(0);
   const [realizedGains, setRealizedGains] = useState(0);
   const [portfolio, setPortfolio] = useState({});
-  const [alignment, setAlignment] = useState(false);
+  const [alignment, setAlignment] = useState('3month');
   const [dividends, setDividends] = useState(null);
 
   useEffect(() => {
@@ -61,7 +62,10 @@ const Portfolio = () => {
           {
             label: 'Value',
             data: balances,
-            fill: false,
+            fill: {
+              target: 'origin',
+              above: 'rgba(54, 162, 235, 0.2)',
+            },
             borderColor: 'rgb(75, 192, 192)',
             tension: 0.1,
           },
@@ -81,7 +85,7 @@ const Portfolio = () => {
     };
 
     fetchData();
-    getDailyPricesGoApi('AAPL');
+    // getDailyPricesGoApi('AAPL');
   }, []);
 
   const openPL = (lastBalance - totalInvested).toFixed(2);
@@ -100,12 +104,12 @@ const Portfolio = () => {
     <div className="chart">
       <div className="header-row">
         <div className="row-item">
-          Portfolio Value
+          <span>Portfolio Value</span>
           <Number number={lastBalance.toFixed(2)}></Number>
         </div>
         <Divider />
         <div className="row-item">
-          Open P&L
+          <span>Open P&L</span>
           <Number number={openPL} neutral={false}></Number>
           <Number
             number={((openPL / totalInvested) * 100).toFixed(2)}
@@ -116,7 +120,7 @@ const Portfolio = () => {
         </div>
         <Divider />
         <div className="row-item">
-          Overall P&L
+          <span>Overall P&L</span>
           <Number number={overallPL} neutral={false}></Number>
           <Number
             number={((overallPL / totalInvested) * 100).toFixed(2)}
@@ -127,10 +131,14 @@ const Portfolio = () => {
         </div>
       </div>
       <h2>Portfolio</h2>
-      {data ? <Line data={data} options={options} /> : null}
+      {data ? <Line data={data} options={lineOptions} /> : null}
 
-      <h2>Dividends</h2>
-      {dividends ? <Bar data={dividends} options={barOptions} /> : null}
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <h2>Dividends</h2>
+          {dividends ? <Bar data={dividends} options={barOptions} /> : null}
+        </Grid>
+      </Grid>
 
       <CustomToggleButtonGroup
         color="primary"
@@ -139,7 +147,7 @@ const Portfolio = () => {
         exclusive
         onChange={handleChange}
       >
-        <CustomToggleButton value="default">3M</CustomToggleButton>
+        <CustomToggleButton value="3month">3M</CustomToggleButton>
         <CustomToggleButton value="year">1Y</CustomToggleButton>
       </CustomToggleButtonGroup>
 
