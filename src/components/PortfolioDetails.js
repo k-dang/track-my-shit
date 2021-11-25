@@ -2,7 +2,7 @@ import Number from './Number';
 import Divider from './Divider';
 import './PortfolioDetails.css';
 
-import { Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
 const PortfolioDetails = ({ lastBalance, totalInvested, realizedGains }) => {
   const openPL = (lastBalance - totalInvested).toFixed(2);
@@ -23,11 +23,11 @@ const PortfolioDetails = ({ lastBalance, totalInvested, realizedGains }) => {
       }
       spacing={2}
     >
-      <div className="row-item">
+      <Typography variant="string" color="textPrimary" className="row-item">
         <span>Portfolio Value</span>
         <Number number={lastBalance.toFixed(2)}></Number>
-      </div>
-      <div className="row-item">
+      </Typography>
+      <Typography variant="string" color="textPrimary" className="row-item">
         <span>Open P&L</span>
         <Number number={openPL} neutral={false}></Number>
         <Number
@@ -36,8 +36,8 @@ const PortfolioDetails = ({ lastBalance, totalInvested, realizedGains }) => {
           isPercent={true}
           isSmall={true}
         ></Number>
-      </div>
-      <div className="row-item">
+      </Typography>
+      <Typography variant="string" color="textPrimary" className="row-item">
         <span>Overall P&L</span>
         <Number number={overallPL} neutral={false}></Number>
         <Number
@@ -46,7 +46,7 @@ const PortfolioDetails = ({ lastBalance, totalInvested, realizedGains }) => {
           isPercent={true}
           isSmall={true}
         ></Number>
-      </div>
+      </Typography>
     </Stack>
   );
 };

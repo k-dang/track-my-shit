@@ -46,14 +46,13 @@ const PortfolioTable = ({ portfolio }) => {
 
   return (
     <StyledEngineProvider injectFirst>
-      <div className="table-container">
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          disableSelectionOnClick
-          hideFooter
-        />
-      </div>
+      <DataGrid
+        className="table-container"
+        rows={rows}
+        columns={columns}
+        disableSelectionOnClick
+        hideFooter
+      />
     </StyledEngineProvider>
   );
 };

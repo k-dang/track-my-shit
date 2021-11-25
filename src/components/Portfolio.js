@@ -7,7 +7,7 @@ import CustomToggleButton from './mui-overrides/CustomToggleButton';
 import CustomToggleButtonGroup from './mui-overrides/CustomToggleButtonGroup';
 import PortfolioTable from './PortfolioTable';
 import PortfolioDetails from './PortfolioDetails';
-import { Grid } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 
 // services
 import {
@@ -104,12 +104,16 @@ const Portfolio = () => {
         realizedGains={realizedGains}
       />
 
-      <h2>Portfolio</h2>
+      <Typography variant="h4" color="textPrimary">
+        Portfolio
+      </Typography>
       {data ? <Line data={data} options={lineOptions} /> : null}
 
       <Grid container spacing={2}>
         <Grid item xs={6}>
-          <h2>Dividends</h2>
+          <Typography variant="h4" color="textPrimary">
+            Dividends
+          </Typography>
           {dividends ? <Bar data={dividends} options={barOptions} /> : null}
         </Grid>
       </Grid>

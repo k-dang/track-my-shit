@@ -3,22 +3,14 @@
   width: 100%;
 }
 
-.dividend-container {
-  width: 50%;
+.table-container .MuiDataGrid-cell:focus {
+  outline: none;
 }
 
-.MuiDataGrid-root {
-  color: white;
+.table-container .MuiDataGrid-columnHeader:focus {
+  outline: none;
 }
 
-.MuiDataGrid-cell:focus {
-  outline: none !important;
-}
-
-.MuiDataGrid-columnHeader:focus {
-  outline: none !important;
-}
-
-.MuiDataGrid-columnHeader:focus-within {
-  outline: none !important;
+.table-container .MuiDataGrid-columnHeader:focus-within {
+  outline: none;
 }
