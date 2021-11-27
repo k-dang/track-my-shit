@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useStock } from '../context/StockContext';
 
 // components
-import './Portfolio.css';
 import { Line, Bar } from 'react-chartjs-2';
 import CustomToggleButton from './mui-overrides/CustomToggleButton';
 import CustomToggleButtonGroup from './mui-overrides/CustomToggleButtonGroup';
 import PortfolioTable from './PortfolioTable';
 import PortfolioDetails from './PortfolioDetails';
-import { Grid, Typography } from '@mui/material';
-
-// services
 import {
-  getDailyBalances,
-  getMonthlyBalances,
-} from '../services/portfolioService';
-import { getDailyPricesGoApi } from '../services/goService';
+  Grid,
+  Typography,
+  CircularProgress,
+  Container,
+  Alert,
+} from '@mui/material';
+import './Portfolio.css';
 
 const lineOptions = {
   plugins: {
@@ -33,104 +34,121 @@ const barOptions = {
 };
 
 const Portfolio = () => {
-  const [data, setData] = useState(null);
-  const [lastBalance, setLastBalance] = useState(0);
-  const [totalInvested, setTotalInvested] = useState(0);
-  const [realizedGains, setRealizedGains] = useState(0);
-  const [portfolio, setPortfolio] = useState({});
   const [alignment, setAlignment] = useState('3month');
-  const [dividends, setDividends] = useState(null);
+  const location = useLocation();
+  const {
+    stockData: {
+      portfolio,
+      totalInvested,
+      realizedGains,
+      labels,
+      balances,
+      dividends,
+    },
+    status,
+  } = useStock();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const {
-        portfolio,
-        totalInvested,
-        realizedGains,
-        labels,
-        balances,
-        dividends,
-      } = await getDailyBalances();
-      setLastBalance(balances[balances.length - 1]);
-      setRealizedGains(realizedGains);
-      setTotalInvested(totalInvested);
-      setPortfolio(portfolio);
-      setData({
-        labels: labels,
-        datasets: [
-          {
-            label: 'Value',
-            data: balances,
-            fill: {
-              target: 'origin',
-              above: 'rgba(54, 162, 235, 0.2)',
-            },
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1,
-          },
-        ],
-      });
+  if (status === 'idle') {
+    return <Navigate to="/" state={{ from: location }} />;
+  }
 
-      setDividends({
-        labels: labels,
-        datasets: [
-          {
-            label: 'Dividends',
-            data: dividends,
-            backgroundColor: 'rgb(54, 162, 235)',
-          },
-        ],
-      });
-    };
+  if (status === 'pending') {
+    return (
+      <Container>
+        <CircularProgress />
+      </Container>
+    );
+  }
 
-    fetchData();
-    // getDailyPricesGoApi('AAPL');
-  }, []);
+  if (status === 'rejected') {
+    return (
+      <Container>
+        <Alert variant="outlined" severity="error">
+          There was an issue getting portfolio data
+        </Alert>
+      </Container>
+    );
+  }
+
+  const graphData = {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Value',
+        data: balances,
+        fill: {
+          target: 'origin',
+          above: 'rgba(54, 162, 235, 0.2)',
+        },
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const lastBalance = balances[balances.length - 1];
+  const dividendsData = {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Dividends',
+        data: dividends,
+        backgroundColor: 'rgb(54, 162, 235)',
+      },
+    ],
+  };
 
   const handleChange = async (event, newValue) => {
-    if (newValue != null) {
-      console.log(newValue);
-      setAlignment(newValue);
-      // TODO handle later
-      // await getMonthlyBalances();
-    }
+    console.log(newValue);
+    setAlignment(newValue);
+    // TODO handle later
   };
 
   return (
-    <div className="portfolio-container">
-      <PortfolioDetails
-        lastBalance={lastBalance}
-        totalInvested={totalInvested}
-        realizedGains={realizedGains}
-      />
+    <Grid container spacing={2} className="portfolio-container">
+      <Grid item xs={12}>
+        <PortfolioDetails
+          lastBalance={lastBalance}
+          totalInvested={totalInvested}
+          realizedGains={realizedGains}
+        />
+      </Grid>
 
-      <Typography variant="h4" color="textPrimary">
-        Portfolio
-      </Typography>
-      {data ? <Line data={data} options={lineOptions} /> : null}
+      <Grid item xs={12}>
+        <CustomToggleButtonGroup
+          color="primary"
+          size="small"
+          value={alignment}
+          exclusive
+          onChange={handleChange}
+        >
+          <CustomToggleButton value="3month">3M</CustomToggleButton>
+          <CustomToggleButton value="year">1Y</CustomToggleButton>
+        </CustomToggleButtonGroup>
+      </Grid>
 
-      <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <Typography variant="h4" color="textPrimary">
+          Portfolio
+        </Typography>
+        {graphData ? <Line data={graphData} options={lineOptions} /> : null}
+      </Grid>
+
+      <Grid item xs={12}>
         <Grid item xs={6}>
           <Typography variant="h4" color="textPrimary">
             Dividends
           </Typography>
-          {dividends ? <Bar data={dividends} options={barOptions} /> : null}
+          {dividendsData ? (
+            <Bar data={dividendsData} options={barOptions} />
+          ) : null}
         </Grid>
       </Grid>
 
-      <CustomToggleButtonGroup
-        color="primary"
-        size="small"
-        value={alignment}
-        exclusive
-        onChange={handleChange}
-      >
-        <CustomToggleButton value="3month">3M</CustomToggleButton>
-        <CustomToggleButton value="year">1Y</CustomToggleButton>
-      </CustomToggleButtonGroup>
-
-      <PortfolioTable portfolio={portfolio} />
-    </div>
+      <Grid item xs={12}>
+        <PortfolioTable portfolio={portfolio} />
+      </Grid>
+    </Grid>
   );
 };
 

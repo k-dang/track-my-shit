@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
-
-import './App.css';
 import { Routes, Route } from 'react-router-dom';
+import { StockProvider } from './context/StockContext';
+
+// components
+import { Container, CircularProgress } from '@mui/material';
+import Header from './components/Header';
+import './App.css';
+
+// pages
 import Portfolio from './components/Portfolio';
 import AddStock from './components/AddStock';
-import Header from './components/Header';
-
-import { Box, CircularProgress } from '@mui/material';
+import Parse from './components/Parse';
 
 // Header names and routes for router
 const headerData = [
   {
     label: 'Portfolio',
-    href: '/',
+    href: '/portfolio',
   },
   {
     label: 'Add Stock',
@@ -48,16 +52,19 @@ const App = () => {
   return (
     <div className="container">
       {isGoLoaded ? (
-        <Routes>
-          <Route path="/" element={<Header headerData={headerData} />}>
-            <Route index element={<Portfolio />} />
-            <Route path="add" element={<AddStock />} />
-          </Route>
-        </Routes>
+        <StockProvider>
+          <Routes>
+            <Route path="/" element={<Header headerData={headerData} />}>
+              <Route index element={<Parse />} />
+              <Route path="portfolio" element={<Portfolio />} />
+              <Route path="add" element={<AddStock />} />
+            </Route>
+          </Routes>
+        </StockProvider>
       ) : (
-        <div className="loading-container">
+        <Container>
           <CircularProgress />
-        </div>
+        </Container>
       )}
     </div>
   );

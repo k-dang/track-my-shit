@@ -1,0 +1,32 @@
+.broker-group .MuiToggleButtonGroup-grouped {
+  color: #bdc1c6;
+  border: 1px solid #5f6368;
+  border-radius: 8px;
+  padding: 10px 20px;
+}
+
+.broker-group .MuiToggleButtonGroup-grouped:hover,
+.broker-group .MuiToggleButtonGroup-grouped.Mui-selected:hover {
+  border-color: #8ab4f8 !important;
+  background-color: rgba(138, 180, 248, 0.239);
+}
+
+.broker-group .MuiToggleButtonGroup-grouped.Mui-selected {
+  border-color: #8ab4f8 !important;
+  background-color: rgba(138, 180, 248, 0.239);
+  color: #bdc1c6;
+}
+
+.broker-group .MuiToggleButtonGroup-grouped:not(:last-of-type),
+.broker-group .MuiToggleButtonGroup-grouped:not(:first-of-type) {
+  border: 1px solid #5f6368;
+  border-radius: 8px;
+}
+
+.broker-group .MuiToggleButtonGroup-grouped:not(:last-child) {
+  margin-right: 20px;
+}
+
+.button-text {
+  margin-left: 10px;
+}

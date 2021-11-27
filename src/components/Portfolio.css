@@ -1,4 +1,8 @@
-.portfolio-container {
+.portfolio-container.MuiGrid-root {
   max-width: 1200px;
   margin: auto;
+}
+
+.portfolio-container .MuiGrid-item {
+  padding-left: 0 !important;
 }
