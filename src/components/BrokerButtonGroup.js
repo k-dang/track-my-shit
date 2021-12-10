@@ -1,11 +1,10 @@
 import { useState } from 'react';
-
 import { ToggleButtonGroup, ToggleButton } from '@mui/material';
-
 import { StyledEngineProvider } from '@mui/material/styles';
 import QuestTradeIcon from '../images/questtrade.svg';
-import InteractiveIcon from '../images/interactive.svg'
+import InteractiveIcon from '../images/interactive.svg';
 import './BrokerButtonGroup.css';
+import { QuestTrade, Interactive } from '../constants/brokerConstants';
 
 const BrokerButtonGroup = ({ onChangeCallback }) => {
   const [broker, setBroker] = useState(null);
@@ -23,7 +22,7 @@ const BrokerButtonGroup = ({ onChangeCallback }) => {
         exclusive
         onChange={handleChange}
       >
-        <ToggleButton value="qt" disableRipple>
+        <ToggleButton value={QuestTrade} disableRipple>
           <img
             width="36px"
             height="36px"
@@ -32,7 +31,7 @@ const BrokerButtonGroup = ({ onChangeCallback }) => {
           />
           <span className="button-text">QuestTrade</span>
         </ToggleButton>
-        <ToggleButton value="ibkr" disableRipple>
+        <ToggleButton value={Interactive} disableRipple>
           <img
             width="36px"
             height="36px"

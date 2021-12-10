@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStock } from '../context/StockContext';
+import XLSX from 'xlsx';
 
 // components
 import { Grid, Button, Typography } from '@mui/material';
 import BrokerButtonGroup from './BrokerButtonGroup';
 import './Parse.css';
+
+import { QuestTrade, Interactive } from '../constants/brokerConstants';
 
 const Parse = () => {
   const [selectedBroker, setSelectedBroker] = useState(null);
@@ -17,9 +20,26 @@ const Parse = () => {
   };
 
   const handleInputChange = async (event) => {
-    var file = event.target.files[0];
-    // TODO pass in file contents to go function
-    console.log(file);
+    const file = event.target.files[0];
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      switch (selectedBroker) {
+        case QuestTrade:
+          const workbook = XLSX.read(e.target.result);
+          const first_sheet_name = workbook.SheetNames[0];
+          const data = XLSX.utils.sheet_to_csv(
+            workbook.Sheets[first_sheet_name]
+          );
+
+          // TODO pass in file contents to go function
+          console.log(data);
+        case Interactive:
+          console.log('TODO');
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
 
     await getStockPortfolio();
     navigate('/portfolio');
