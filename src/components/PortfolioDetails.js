@@ -4,7 +4,12 @@ import './PortfolioDetails.css';
 
 import { Stack, Typography } from '@mui/material';
 
-const PortfolioDetails = ({ lastBalance, totalInvested, realizedGains }) => {
+const PortfolioDetails = ({
+  lastBalance,
+  totalInvested,
+  realizedGains,
+  totalDividends,
+}) => {
   const openPL = (lastBalance - totalInvested).toFixed(2);
   const overallPL = (lastBalance - totalInvested + realizedGains).toFixed(2);
 
@@ -46,6 +51,10 @@ const PortfolioDetails = ({ lastBalance, totalInvested, realizedGains }) => {
           isPercent={true}
           isSmall={true}
         ></Number>
+      </Typography>
+      <Typography variant="string" color="textPrimary" className="row-item">
+        <span>Total Dividends</span>
+        <Number number={totalDividends.toFixed(2)} neutral={false}></Number>
       </Typography>
     </Stack>
   );

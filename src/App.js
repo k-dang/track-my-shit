@@ -8,9 +8,9 @@ import Header from './components/Header';
 import './App.css';
 
 // pages
-import Portfolio from './components/Portfolio';
-import AddStock from './components/AddStock';
-import Parse from './components/Parse';
+import Portfolio from './components/pages/Portfolio';
+import AddStock from './components/pages/AddStock';
+import Parse from './components/pages/Parse';
 
 // Header names and routes for router
 const headerData = [
@@ -62,7 +62,7 @@ const App = () => {
           </Routes>
         </StockProvider>
       ) : (
-        <Container>
+        <Container className="progress-container">
           <CircularProgress />
         </Container>
       )}

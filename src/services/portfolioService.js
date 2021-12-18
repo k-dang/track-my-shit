@@ -123,8 +123,9 @@ export const getDailyBalances = async () => {
 
     // store market value as well
     const lastDate = Object.keys(timeSeriesBySymbol[symbol])[0];
-    portfolio[symbol]['marketPrice'] =
-      timeSeriesBySymbol[symbol][lastDate]['4. close'];
+    portfolio[symbol]['marketPrice'] = parseFloat(
+      timeSeriesBySymbol[symbol][lastDate]['4. close']
+    );
   }
 
   return {
@@ -139,9 +140,9 @@ export const getDailyBalances = async () => {
 
 export const getMonthlyBalances = async () => {
   const { uniqueSymbols, transactionsByDate } = parseBrokerData();
-  
+
   const monthlyTimeSeries = await getTimeSeriesMonthlyAdjusted('IBM');
-  
+
   // just get 12 months worth
   const closest12Dates = Object.keys(monthlyTimeSeries).slice(0, 12);
 
