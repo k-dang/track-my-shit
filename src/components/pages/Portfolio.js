@@ -1,32 +1,55 @@
 import { useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useStock } from '../context/StockContext';
+import { useStock } from '../../context/StockContext';
 
 // components
 import { Line, Bar } from 'react-chartjs-2';
-import CustomToggleButton from './mui-overrides/CustomToggleButton';
-import CustomToggleButtonGroup from './mui-overrides/CustomToggleButtonGroup';
-import PortfolioTable from './PortfolioTable';
-import PortfolioDetails from './PortfolioDetails';
-import {
-  Grid,
-  Typography,
-  CircularProgress,
-  Container,
-  Alert,
-} from '@mui/material';
+import CustomToggleButton from '../mui-overrides/CustomToggleButton';
+import CustomToggleButtonGroup from '../mui-overrides/CustomToggleButtonGroup';
+import PortfolioTable from '../PortfolioTable';
+import PortfolioDetails from '../PortfolioDetails';
+import { Grid, CircularProgress, Container, Alert } from '@mui/material';
 import './Portfolio.css';
 
 const lineOptions = {
   plugins: {
+    title: {
+      display: true,
+      text: 'Portfolio',
+      font: {
+        size: 16,
+      },
+    },
     legend: {
       display: false,
     },
   },
 };
 
-const barOptions = {
+const dividendGraphOptions = {
   plugins: {
+    title: {
+      display: true,
+      text: 'Dividends',
+      font: {
+        size: 16,
+      },
+    },
+    legend: {
+      display: false,
+    },
+  },
+};
+
+const holdingsOptions = {
+  plugins: {
+    title: {
+      display: true,
+      text: 'Holdings',
+      font: {
+        size: 16,
+      },
+    },
     legend: {
       display: false,
     },
@@ -54,7 +77,7 @@ const Portfolio = () => {
 
   if (status === 'pending') {
     return (
-      <Container>
+      <Container className="center-container">
         <CircularProgress />
       </Container>
     );
@@ -70,7 +93,7 @@ const Portfolio = () => {
     );
   }
 
-  const graphData = {
+  const portfolioGraphData = {
     labels: labels,
     datasets: [
       {
@@ -87,13 +110,36 @@ const Portfolio = () => {
   };
 
   const lastBalance = balances[balances.length - 1];
-  const dividendsData = {
+  const dividendsGraphData = {
     labels: labels,
     datasets: [
       {
         label: 'Dividends',
         data: dividends,
-        backgroundColor: 'rgb(54, 162, 235)',
+        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+      },
+    ],
+  };
+  const totalDividends = dividends.reduce((p, c) => p + c);
+
+  const holdingsMarket = Object.keys(portfolio).reduce((previous, key) => {
+    return [...previous, portfolio[key].marketPrice * portfolio[key].quantity];
+  }, []);
+  const holdingsAverage = Object.keys(portfolio).reduce((previous, key) => {
+    return [...previous, portfolio[key].averagePrice * portfolio[key].quantity];
+  }, []);
+  const holdingsData = {
+    labels: Object.keys(portfolio),
+    datasets: [
+      {
+        label: 'Market Value',
+        data: holdingsMarket,
+        backgroundColor: 'rgba(255, 159, 64, 0.5)',
+      },
+      {
+        label: 'Total Cost',
+        data: holdingsAverage,
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
       },
     ],
   };
@@ -111,6 +157,7 @@ const Portfolio = () => {
           lastBalance={lastBalance}
           totalInvested={totalInvested}
           realizedGains={realizedGains}
+          totalDividends={totalDividends}
         />
       </Grid>
 
@@ -128,19 +175,19 @@ const Portfolio = () => {
       </Grid>
 
       <Grid item xs={12}>
-        <Typography variant="h4" color="textPrimary">
-          Portfolio
-        </Typography>
-        {graphData ? <Line data={graphData} options={lineOptions} /> : null}
+        {portfolioGraphData ? <Line data={portfolioGraphData} options={lineOptions} /> : null}
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid container item xs={12}>
         <Grid item xs={6}>
-          <Typography variant="h4" color="textPrimary">
-            Dividends
-          </Typography>
-          {dividendsData ? (
-            <Bar data={dividendsData} options={barOptions} />
+          {dividendsGraphData ? (
+            <Bar data={dividendsGraphData} options={dividendGraphOptions} />
+          ) : null}
+        </Grid>
+
+        <Grid item xs={6}>
+          {portfolio ? (
+            <Bar data={holdingsData} options={holdingsOptions} />
           ) : null}
         </Grid>
       </Grid>

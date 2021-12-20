@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStock } from '../context/StockContext';
+import { useStock } from '../../context/StockContext';
 import XLSX from 'xlsx';
 
 // components
 import { Grid, Button, Typography } from '@mui/material';
-import BrokerButtonGroup from './BrokerButtonGroup';
+import BrokerButtonGroup from '../BrokerButtonGroup';
 import './Parse.css';
 
-import { QuestTrade, Interactive } from '../constants/brokerConstants';
+import { QuestTrade, Interactive } from '../../constants/brokerConstants';
 
 const Parse = () => {
   const [selectedBroker, setSelectedBroker] = useState(null);
@@ -34,8 +34,12 @@ const Parse = () => {
 
           // TODO pass in file contents to go function
           console.log(data);
+          break;
         case Interactive:
           console.log('TODO');
+          break;
+        default:
+          console.log('default case?');
       }
     };
 

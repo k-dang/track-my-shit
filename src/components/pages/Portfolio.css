@@ -6,3 +6,8 @@
 .portfolio-container .MuiGrid-item {
   padding-left: 0 !important;
 }
+
+.MuiContainer-root.center-container {
+  display: flex;
+  justify-content: center;
+}
