@@ -2,6 +2,7 @@ import {
   getMultipleTimeSeriesDailyAdjusted,
   getTimeSeriesMonthlyAdjusted,
 } from './alphavantageService';
+import PortfolioHoldings from './PortfolioHoldings';
 import { getDateRange } from './dateService';
 import subMonths from 'date-fns/subMonths';
 import format from 'date-fns/format';
@@ -31,6 +32,39 @@ const parseBrokerData = () => {
   };
 };
 
+const updatePortfolioWithTransactions = (transactions, portfolioHoldings) => {
+  transactions.forEach((t) => {
+    // check if symbol already exists in our portfolio
+    const symbol = t['Symbol'];
+    const action = t['Action'];
+    if (symbol in portfolioHoldings.holdings) {
+      const found = portfolioHoldings.holdings[symbol];
+      if (action === 'Buy') {
+        // previous total cost
+        const previousCost = found['quantity'] * found['averagePrice'];
+
+        // update quantity
+        found['quantity'] += t['Quantity'];
+
+        // calculate new average price: total cost / total quantity
+        const averagePrice = (previousCost + t['Gross']) / found['quantity'];
+        found['averagePrice'] = averagePrice;
+      } else {
+        found['quantity'] -= t['Quantity'];
+        // (sell price - buy price) * qty
+        portfolioHoldings.realizedGains +=
+          (t['Price'] - found['averagePrice']) * t['Quantity'];
+      }
+    } else {
+      // might need to account for short positions later
+      portfolioHoldings.holdings[symbol] = {
+        quantity: t['Quantity'],
+        averagePrice: t['Price'],
+      };
+    }
+  });
+};
+
 export const getDailyBalances = async () => {
   const dateRange = getDateRange(subMonths(new Date(), 3), new Date());
   const formattedDates = dateRange.map((date) => format(date, 'yyyy-MM-dd'));
@@ -44,8 +78,20 @@ export const getDailyBalances = async () => {
   const labels = [];
   const balances = [];
   const dividends = [];
-  const holdings = {};
-  let realizedGains = 0;
+  const portfolioHoldings = new PortfolioHoldings();
+  const holdings = portfolioHoldings.holdings;
+
+  // need to account for dates outside of the range
+  const sortedTransactionDates = Object.keys(transactionsByDate).sort();
+  const earlierDates = sortedTransactionDates.filter(
+    (date) => date < formattedDates[0]
+  );
+  earlierDates.forEach((date) => {
+    updatePortfolioWithTransactions(
+      transactionsByDate[date],
+      portfolioHoldings
+    );
+  });
 
   formattedDates.forEach((date) => {
     // for now lets just skip dates without any ticker changes
@@ -55,38 +101,10 @@ export const getDailyBalances = async () => {
 
     // check if that date has any transactions
     if (date in transactionsByDate) {
-      const transactions = transactionsByDate[date];
-      transactions.forEach((t) => {
-        // check if symbol already exists in our portfolio
-        const symbol = t['Symbol'];
-        const action = t['Action'];
-        if (symbol in holdings) {
-          const found = holdings[symbol];
-          if (action === 'Buy') {
-            // previous total cost
-            const previousCost = found['quantity'] * found['averagePrice'];
-
-            // update quantity
-            found['quantity'] += t['Quantity'];
-
-            // calculate new average price: total cost / total quantity
-            const averagePrice =
-              (previousCost + t['Gross']) / found['quantity'];
-            found['averagePrice'] = averagePrice;
-          } else {
-            found['quantity'] -= t['Quantity'];
-            // (sell price - buy price) * qty
-            realizedGains +=
-              (t['Price'] - found['averagePrice']) * t['Quantity'];
-          }
-        } else {
-          // might need to account for short positions later
-          holdings[symbol] = {
-            quantity: t['Quantity'],
-            averagePrice: t['Price'],
-          };
-        }
-      });
+      updatePortfolioWithTransactions(
+        transactionsByDate[date],
+        portfolioHoldings
+      );
     }
 
     let dailyBalance = 0;
@@ -100,7 +118,7 @@ export const getDailyBalances = async () => {
 
       if (dividendRate > 0) {
         const dividend = dividendRate * detail['quantity'];
-        realizedGains += dividend;
+        portfolioHoldings.realizedGains += dividend;
         dailyDividends += dividend;
       }
 
@@ -131,7 +149,7 @@ export const getDailyBalances = async () => {
   return {
     holdings: holdings,
     totalInvested: totalInvested,
-    realizedGains: realizedGains,
+    realizedGains: portfolioHoldings.realizedGains,
     labels: labels,
     balances: balances,
     dividends: dividends,
