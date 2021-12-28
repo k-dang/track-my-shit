@@ -44,7 +44,7 @@ export const getDailyBalances = async () => {
   const labels = [];
   const balances = [];
   const dividends = [];
-  const portfolio = {};
+  const holdings = {};
   let realizedGains = 0;
 
   formattedDates.forEach((date) => {
@@ -60,8 +60,8 @@ export const getDailyBalances = async () => {
         // check if symbol already exists in our portfolio
         const symbol = t['Symbol'];
         const action = t['Action'];
-        if (symbol in portfolio) {
-          const found = portfolio[symbol];
+        if (symbol in holdings) {
+          const found = holdings[symbol];
           if (action === 'Buy') {
             // previous total cost
             const previousCost = found['quantity'] * found['averagePrice'];
@@ -81,7 +81,7 @@ export const getDailyBalances = async () => {
           }
         } else {
           // might need to account for short positions later
-          portfolio[symbol] = {
+          holdings[symbol] = {
             quantity: t['Quantity'],
             averagePrice: t['Price'],
           };
@@ -93,7 +93,7 @@ export const getDailyBalances = async () => {
     let dailyDividends = 0;
     // check out entire portfolio and calculate for every symbol
     // check if that date has any price changes and adjust with closing prices
-    for (const [symbol, detail] of Object.entries(portfolio)) {
+    for (const [symbol, detail] of Object.entries(holdings)) {
       const tickerData = timeSeriesBySymbol[symbol][date];
       const closing = tickerData['4. close'];
       const dividendRate = tickerData['7. dividend amount'];
@@ -118,18 +118,18 @@ export const getDailyBalances = async () => {
 
   // calculate total invested at the end
   let totalInvested = 0;
-  for (const [symbol, info] of Object.entries(portfolio)) {
+  for (const [symbol, info] of Object.entries(holdings)) {
     totalInvested += info['averagePrice'] * info['quantity'];
 
     // store market value as well
     const lastDate = Object.keys(timeSeriesBySymbol[symbol])[0];
-    portfolio[symbol]['marketPrice'] = parseFloat(
+    holdings[symbol]['marketPrice'] = parseFloat(
       timeSeriesBySymbol[symbol][lastDate]['4. close']
     );
   }
 
   return {
-    portfolio: portfolio,
+    holdings: holdings,
     totalInvested: totalInvested,
     realizedGains: realizedGains,
     labels: labels,
