@@ -14,13 +14,18 @@ const columns = [
     width: 130,
   },
   {
+    field: 'averagePrice',
+    headerName: 'Average Price',
+    width: 150,
+  },
+  {
     field: 'marketPrice',
     headerName: 'Market Price',
     width: 150,
   },
   {
-    field: 'averagePrice',
-    headerName: 'Average Price',
+    field: 'totalCost',
+    headerName: 'Total Cost',
     width: 150,
   },
   {
@@ -30,16 +35,19 @@ const columns = [
   },
 ];
 
-const PortfolioTable = ({ portfolio }) => {
-  const rows = Object.keys(portfolio).map((key, i) => {
+const PortfolioTable = ({ holdings }) => {
+  const rows = Object.keys(holdings).map((key, i) => {
     return {
       id: i,
       symbol: key,
-      quantity: portfolio[key]['quantity'],
-      marketPrice: portfolio[key]['marketPrice'],
-      averagePrice: portfolio[key]['averagePrice'].toFixed(2),
+      quantity: holdings[key]['quantity'],
+      averagePrice: holdings[key]['averagePrice'].toFixed(2),
+      marketPrice: holdings[key]['marketPrice'],
+      totalCost: (
+        holdings[key]['averagePrice'] * holdings[key]['quantity']
+      ).toFixed(2),
       marketValue: (
-        portfolio[key]['marketPrice'] * portfolio[key]['quantity']
+        holdings[key]['marketPrice'] * holdings[key]['quantity']
       ).toFixed(2),
     };
   });

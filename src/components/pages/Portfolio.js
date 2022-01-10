@@ -15,7 +15,7 @@ const lineOptions = {
   plugins: {
     title: {
       display: true,
-      text: 'Portfolio',
+      text: 'Overall P/L',
       font: {
         size: 16,
       },
@@ -61,7 +61,7 @@ const Portfolio = () => {
   const location = useLocation();
   const {
     stockData: {
-      portfolio,
+      holdings,
       totalInvested,
       realizedGains,
       labels,
@@ -122,14 +122,14 @@ const Portfolio = () => {
   };
   const totalDividends = dividends.reduce((p, c) => p + c);
 
-  const holdingsMarket = Object.keys(portfolio).reduce((previous, key) => {
-    return [...previous, portfolio[key].marketPrice * portfolio[key].quantity];
+  const holdingsMarket = Object.keys(holdings).reduce((previous, key) => {
+    return [...previous, holdings[key].marketPrice * holdings[key].quantity];
   }, []);
-  const holdingsAverage = Object.keys(portfolio).reduce((previous, key) => {
-    return [...previous, portfolio[key].averagePrice * portfolio[key].quantity];
+  const holdingsAverage = Object.keys(holdings).reduce((previous, key) => {
+    return [...previous, holdings[key].averagePrice * holdings[key].quantity];
   }, []);
   const holdingsData = {
-    labels: Object.keys(portfolio),
+    labels: Object.keys(holdings),
     datasets: [
       {
         label: 'Market Value',
@@ -186,14 +186,14 @@ const Portfolio = () => {
         </Grid>
 
         <Grid item xs={6}>
-          {portfolio ? (
+          {holdings ? (
             <Bar data={holdingsData} options={holdingsOptions} />
           ) : null}
         </Grid>
       </Grid>
 
       <Grid item xs={12}>
-        <PortfolioTable portfolio={portfolio} />
+        <PortfolioTable holdings={holdings} />
       </Grid>
     </Grid>
   );

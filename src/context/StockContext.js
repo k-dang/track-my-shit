@@ -10,7 +10,7 @@ export const useStock = () => {
 
 export const StockProvider = ({ children }) => {
   const [stockData, setStockData] = useState({
-    portfolio: [],
+    holdings: [],
     totalInvested: 0,
     realizedGains: 0,
     labels: [],
@@ -22,7 +22,7 @@ export const StockProvider = ({ children }) => {
   const getStockPortfolio = async () => {
     setStatus('pending');
     const {
-      portfolio,
+      holdings,
       totalInvested,
       realizedGains,
       labels,
@@ -34,7 +34,7 @@ export const StockProvider = ({ children }) => {
     // TODO verify data
     // setStatus('rejected');
     setStockData({
-      portfolio,
+      holdings,
       totalInvested,
       realizedGains,
       labels,
