@@ -21,6 +21,10 @@ export const StockProvider = ({ children }) => {
 
   const getStockPortfolio = async () => {
     setStatus('pending');
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('using dev data');
+    }
     const {
       holdings,
       totalInvested,

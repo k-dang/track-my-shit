@@ -160,6 +160,8 @@ const Portfolio = () => {
       case 'year':
         setStartingWeek(0);
         break;
+      default:
+        setStartingWeek(0);
     }
   };
 

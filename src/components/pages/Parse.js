@@ -36,7 +36,10 @@ const Parse = () => {
           console.log(data);
           break;
         case Interactive:
-          console.log('TODO');
+          const bufferUint8Array = new Uint8Array(e.target.result);
+          const csvString = new TextDecoder().decode(bufferUint8Array);
+
+          console.log(csvString);
           break;
         default:
           console.log('default case?');
@@ -49,15 +52,29 @@ const Parse = () => {
     navigate('/portfolio');
   };
 
+  const devNavigation = async () => {
+    if (process.env.NODE_ENV === 'development') {
+      await getStockPortfolio();
+      navigate('/portfolio');
+    }
+  };
+
   const isUploadDisabled = selectedBroker == null ? true : false;
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid item xs={10}>
         <Typography variant="h3" color="textPrimary">
           Parsing Page
         </Typography>
       </Grid>
+      {process.env.NODE_ENV === 'development' ? (
+        <Grid item xs={2}>
+          <Button onClick={devNavigation} variant="outlined">
+            Dev
+          </Button>
+        </Grid>
+      ) : null}
       <Grid item xs={12}>
         <BrokerButtonGroup onChangeCallback={onButtonToggle} />
       </Grid>
