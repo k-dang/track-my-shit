@@ -1,5 +1,6 @@
 import {
   getMultipleTimeSeriesDailyAdjusted,
+  getMultipleTimeSeriesWeeklyAdjusted,
   getTimeSeriesMonthlyAdjusted,
 } from './alphavantageService';
 import PortfolioHoldings from './PortfolioHoldings';
@@ -159,7 +160,9 @@ export const getDailyBalances = async () => {
 export const getMonthlyBalances = async () => {
   const { uniqueSymbols, transactionsByDate } = parseBrokerData();
 
-  const monthlyTimeSeries = await getTimeSeriesMonthlyAdjusted('IBM');
+  const monthlyTimeSeries = await getTimeSeriesMonthlyAdjusted([
+    ...uniqueSymbols,
+  ]);
 
   // just get 12 months worth
   const closest12Dates = Object.keys(monthlyTimeSeries).slice(0, 12);
@@ -173,4 +176,129 @@ export const getMonthlyBalances = async () => {
   });
 
   // need to parse broker data into months, see if match
+};
+
+export const getWeeklyBalances = async () => {
+  const { uniqueSymbols, transactionsByDate } = parseBrokerData();
+
+  const { tradeWeekDates, timeSeriesBySymbol } =
+    await getMultipleTimeSeriesWeeklyAdjusted([...uniqueSymbols]);
+
+  const sortedTransactionDates = Object.keys(transactionsByDate).sort();
+
+  // create new dictionary transactionsByWeek
+  const transactionsByWeek = sortedTransactionDates.reduce((dict, date) => {
+    // skip any transactions that occured before the first trade week dates
+    let lastTradingDayOfTradeWeek = date;
+    if (date > tradeWeekDates[0]) {
+      lastTradingDayOfTradeWeek = getLastTradingDayOfTradeWeek(
+        date,
+        tradeWeekDates
+      );
+    }
+    const transactions = transactionsByDate[date];
+    dict[lastTradingDayOfTradeWeek] = transactions;
+
+    return dict;
+  }, {});
+
+  const labels = [];
+  const balances = [];
+  const dividends = [];
+  const portfolioHoldings = new PortfolioHoldings();
+  const holdings = portfolioHoldings.holdings;
+
+  const sortedTransactionWeeks = Object.keys(transactionsByWeek).sort();
+  const earlierDates = sortedTransactionWeeks.filter(
+    (date) => date < tradeWeekDates[0]
+  );
+  earlierDates.forEach((date) => {
+    updatePortfolioWithTransactions(
+      transactionsByWeek[date],
+      portfolioHoldings
+    );
+  });
+
+  tradeWeekDates.forEach((date) => {
+    if (date in transactionsByWeek) {
+      updatePortfolioWithTransactions(
+        transactionsByWeek[date],
+        portfolioHoldings
+      );
+    }
+
+    let weeklyBalance = 0;
+    let weeklyDividends = 0;
+
+    for (const [symbol, detail] of Object.entries(holdings)) {
+      const tickerData = timeSeriesBySymbol[symbol][date];
+      const closing = tickerData['4. close'];
+      const dividendRate = tickerData['7. dividend amount'];
+
+      if (dividendRate > 0) {
+        const dividend = dividendRate * detail['quantity'];
+        portfolioHoldings.realizedGains += dividend;
+        weeklyDividends += dividend;
+      }
+
+      weeklyBalance += detail['quantity'] * closing;
+
+      // TODO account for stock splits
+      // stock splits change quantity & price
+    }
+
+    labels.push(date);
+    balances.push(weeklyBalance);
+    dividends.push(weeklyDividends);
+  });
+
+  // calculate total invested
+  let totalInvested = 0;
+  for (const [symbol, info] of Object.entries(holdings)) {
+    totalInvested += info['averagePrice'] * info['quantity'];
+
+    // store market value as well
+    const lastDate = Object.keys(timeSeriesBySymbol[symbol])[0];
+    holdings[symbol]['marketPrice'] = parseFloat(
+      timeSeriesBySymbol[symbol][lastDate]['4. close']
+    );
+  }
+
+  return {
+    holdings,
+    totalInvested,
+    realizedGains: portfolioHoldings.realizedGains,
+    labels,
+    balances,
+    dividends,
+  };
+};
+
+/**
+ * Finds and returns the last trading day for the week a trade was made on
+ * from a sorted list of dates which are the last trading day of each week
+ * @param {string} tradeDate - Trade date in yyyy-MM-dd format (eg. 2021-12-31)
+ * @param {string[]} dates - Sorted list of dates in yyyy-MM-dd format
+ * @returns {string} Date found from list of dates
+ */
+const getLastTradingDayOfTradeWeek = (tradeDate, dates) => {
+  let low = 0;
+  let high = dates.length - 1;
+  let mid = 0;
+
+  while (low <= high) {
+    mid = Math.floor((low + high) / 2);
+
+    if (tradeDate === dates[mid]) {
+      // return mid
+      return dates[mid];
+    } else if (tradeDate > dates[mid]) {
+      low = mid + 1;
+    } else if (tradeDate < dates[mid]) {
+      high = mid - 1;
+    }
+  }
+
+  // we want next highest without going over
+  return dates[low];
 };

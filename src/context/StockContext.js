@@ -1,6 +1,6 @@
 import { createContext, useState, useContext } from 'react';
 
-import { getDailyBalances } from '../services/portfolioService';
+import { getWeeklyBalances } from '../services/portfolioService';
 
 const StockContext = createContext();
 
@@ -28,7 +28,7 @@ export const StockProvider = ({ children }) => {
       labels,
       balances,
       dividends,
-    } = await getDailyBalances();
+    } = await getWeeklyBalances();
     setStatus('resolved');
 
     // TODO verify data
