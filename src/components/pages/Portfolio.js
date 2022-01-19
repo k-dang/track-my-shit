@@ -11,7 +11,12 @@ import PortfolioDetails from '../PortfolioDetails';
 import { Grid, CircularProgress, Container, Alert } from '@mui/material';
 import './Portfolio.css';
 
-const lineOptions = {
+const lineGraphOptions = {
+  scales: {
+    yAxis: {
+      min: 0,
+    },
+  },
   plugins: {
     title: {
       display: true,
@@ -41,7 +46,7 @@ const dividendGraphOptions = {
   },
 };
 
-const holdingsOptions = {
+const holdingsGraphOptions = {
   plugins: {
     title: {
       display: true,
@@ -57,7 +62,8 @@ const holdingsOptions = {
 };
 
 const Portfolio = () => {
-  const [alignment, setAlignment] = useState('3month');
+  const [alignment, setAlignment] = useState('year');
+  const [startingWeek, setStartingWeek] = useState(0);
   const location = useLocation();
   const {
     stockData: {
@@ -94,11 +100,11 @@ const Portfolio = () => {
   }
 
   const portfolioGraphData = {
-    labels: labels,
+    labels: labels.slice(startingWeek),
     datasets: [
       {
         label: 'Value',
-        data: balances,
+        data: balances.slice(startingWeek),
         fill: {
           target: 'origin',
           above: 'rgba(54, 162, 235, 0.2)',
@@ -109,7 +115,6 @@ const Portfolio = () => {
     ],
   };
 
-  const lastBalance = balances[balances.length - 1];
   const dividendsGraphData = {
     labels: labels,
     datasets: [
@@ -120,7 +125,6 @@ const Portfolio = () => {
       },
     ],
   };
-  const totalDividends = dividends.reduce((p, c) => p + c);
 
   const holdingsMarket = Object.keys(holdings).reduce((previous, key) => {
     return [...previous, holdings[key].marketPrice * holdings[key].quantity];
@@ -128,7 +132,7 @@ const Portfolio = () => {
   const holdingsAverage = Object.keys(holdings).reduce((previous, key) => {
     return [...previous, holdings[key].averagePrice * holdings[key].quantity];
   }, []);
-  const holdingsData = {
+  const holdingsGraphData = {
     labels: Object.keys(holdings),
     datasets: [
       {
@@ -144,10 +148,21 @@ const Portfolio = () => {
     ],
   };
 
+  const lastBalance = balances[balances.length - 1];
+  const totalDividends = dividends.reduce((p, c) => p + c);
+
   const handleChange = async (event, newValue) => {
-    console.log(newValue);
     setAlignment(newValue);
-    // TODO handle later
+    switch (newValue) {
+      case '3month':
+        setStartingWeek(39);
+        break;
+      case 'year':
+        setStartingWeek(0);
+        break;
+      default:
+        setStartingWeek(0);
+    }
   };
 
   return (
@@ -175,7 +190,9 @@ const Portfolio = () => {
       </Grid>
 
       <Grid item xs={12}>
-        {portfolioGraphData ? <Line data={portfolioGraphData} options={lineOptions} /> : null}
+        {portfolioGraphData ? (
+          <Line data={portfolioGraphData} options={lineGraphOptions} />
+        ) : null}
       </Grid>
 
       <Grid container item xs={12}>
@@ -187,7 +204,7 @@ const Portfolio = () => {
 
         <Grid item xs={6}>
           {holdings ? (
-            <Bar data={holdingsData} options={holdingsOptions} />
+            <Bar data={holdingsGraphData} options={holdingsGraphOptions} />
           ) : null}
         </Grid>
       </Grid>
