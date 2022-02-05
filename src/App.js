@@ -16,7 +16,11 @@ import Parse from './components/pages/Parse';
 const headerData = [
   {
     label: 'Portfolio',
-    href: '/portfolio',
+    href: '/',
+  },
+  {
+    label: 'Parse',
+    href: '/parse',
   },
   {
     label: 'Add Stock',
@@ -55,8 +59,8 @@ const App = () => {
         <StockProvider>
           <Routes>
             <Route path="/" element={<Header headerData={headerData} />}>
-              <Route index element={<Parse />} />
-              <Route path="portfolio" element={<Portfolio />} />
+              <Route index element={<Portfolio />} />
+              <Route path="parse" element={<Parse />} />
               <Route path="add" element={<AddStock />} />
             </Route>
           </Routes>

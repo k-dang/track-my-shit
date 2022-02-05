@@ -49,13 +49,13 @@ const Parse = () => {
     reader.readAsArrayBuffer(file);
 
     await getStockPortfolio();
-    navigate('/portfolio');
+    navigate('/');
   };
 
   const devNavigation = async () => {
     if (process.env.NODE_ENV === 'development') {
       await getStockPortfolio();
-      navigate('/portfolio');
+      navigate('/');
     }
   };
 
@@ -64,14 +64,14 @@ const Parse = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={10}>
-        <Typography variant="h3" color="textPrimary">
-          Parsing Page
+        <Typography variant="h4" color="textPrimary">
+          Parse
         </Typography>
       </Grid>
       {process.env.NODE_ENV === 'development' ? (
         <Grid item xs={2}>
           <Button onClick={devNavigation} variant="outlined">
-            Dev
+            Load Dev data
           </Button>
         </Grid>
       ) : null}
