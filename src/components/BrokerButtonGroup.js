@@ -3,8 +3,13 @@ import { ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material/styles';
 import QuestTradeIcon from '../images/questtrade.svg';
 import InteractiveIcon from '../images/interactive.svg';
+import TDAmeritradeIcon from '../images/td.svg';
 import './BrokerButtonGroup.css';
-import { QuestTrade, Interactive } from '../constants/brokerConstants';
+import {
+  QuestTrade,
+  Interactive,
+  TDAmeritrade,
+} from '../constants/brokerConstants';
 
 const BrokerButtonGroup = ({ onChangeCallback }) => {
   const [broker, setBroker] = useState(null);
@@ -39,6 +44,15 @@ const BrokerButtonGroup = ({ onChangeCallback }) => {
             alt="Interactive Logo"
           />
           <span className="button-text">Interactive</span>
+        </ToggleButton>
+        <ToggleButton value={TDAmeritrade} disableRipple>
+          <img
+            width="36px"
+            height="36px"
+            src={TDAmeritradeIcon}
+            alt="TDAmeritrade Logo"
+          />
+          <span className="button-text">TD Ameritrade</span>
         </ToggleButton>
       </ToggleButtonGroup>
     </StyledEngineProvider>
