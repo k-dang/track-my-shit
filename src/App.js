@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { StockProvider } from './context/StockContext';
 
 // components
-import { Container, CircularProgress } from '@mui/material';
+import CenteredProgress from './components/CenteredProgress';
 import Header from './components/Header';
 import './App.css';
 
@@ -66,9 +66,7 @@ const App = () => {
           </Routes>
         </StockProvider>
       ) : (
-        <Container className="progress-container">
-          <CircularProgress />
-        </Container>
+        <CenteredProgress />
       )}
     </div>
   );
