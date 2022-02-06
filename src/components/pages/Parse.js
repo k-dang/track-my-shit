@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useStock } from '../../context/StockContext';
+import useParsePortfolio from '../../hooks/useParsePortfolio';
 import XLSX from 'xlsx';
 
 // components
@@ -12,8 +11,7 @@ import { QuestTrade, Interactive } from '../../constants/brokerConstants';
 
 const Parse = () => {
   const [selectedBroker, setSelectedBroker] = useState(null);
-  const navigate = useNavigate();
-  const { getStockPortfolio } = useStock();
+  const [parsePortfolio] = useParsePortfolio();
 
   const onButtonToggle = (value) => {
     setSelectedBroker(value);
@@ -48,14 +46,12 @@ const Parse = () => {
 
     reader.readAsArrayBuffer(file);
 
-    await getStockPortfolio();
-    navigate('/portfolio');
+    await parsePortfolio();
   };
 
   const devNavigation = async () => {
     if (process.env.NODE_ENV === 'development') {
-      await getStockPortfolio();
-      navigate('/portfolio');
+      await parsePortfolio();
     }
   };
 
@@ -64,14 +60,14 @@ const Parse = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={10}>
-        <Typography variant="h3" color="textPrimary">
-          Parsing Page
+        <Typography variant="h4" color="textPrimary">
+          Parse
         </Typography>
       </Grid>
       {process.env.NODE_ENV === 'development' ? (
         <Grid item xs={2}>
           <Button onClick={devNavigation} variant="outlined">
-            Dev
+            Load Dev data
           </Button>
         </Grid>
       ) : null}

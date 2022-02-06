@@ -1,0 +1,4 @@
+.MuiContainer-root.center-container {
+  display: flex;
+  justify-content: center;
+}

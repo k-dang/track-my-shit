@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { StockProvider } from './context/StockContext';
 
 // components
-import { Container, CircularProgress } from '@mui/material';
+import CenteredProgress from './components/CenteredProgress';
 import Header from './components/Header';
 import './App.css';
 
@@ -16,7 +16,11 @@ import Parse from './components/pages/Parse';
 const headerData = [
   {
     label: 'Portfolio',
-    href: '/portfolio',
+    href: '/',
+  },
+  {
+    label: 'Parse',
+    href: '/parse',
   },
   {
     label: 'Add Stock',
@@ -55,16 +59,14 @@ const App = () => {
         <StockProvider>
           <Routes>
             <Route path="/" element={<Header headerData={headerData} />}>
-              <Route index element={<Parse />} />
-              <Route path="portfolio" element={<Portfolio />} />
+              <Route index element={<Portfolio />} />
+              <Route path="parse" element={<Parse />} />
               <Route path="add" element={<AddStock />} />
             </Route>
           </Routes>
         </StockProvider>
       ) : (
-        <Container className="progress-container">
-          <CircularProgress />
-        </Container>
+        <CenteredProgress />
       )}
     </div>
   );
