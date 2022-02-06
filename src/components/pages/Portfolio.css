@@ -1,4 +1,4 @@
-.portfolio-container.MuiGrid-root {
+.MuiGrid-root.portfolio-container {
   max-width: 1200px;
   margin: auto;
 }
@@ -7,7 +7,7 @@
   padding-left: 0 !important;
 }
 
-.MuiContainer-root.center-container {
+.MuiGrid-root.row-center {
   display: flex;
   justify-content: center;
 }

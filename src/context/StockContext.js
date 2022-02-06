@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 
 import { getWeeklyBalances } from '../services/portfolioService';
 
@@ -18,13 +18,14 @@ export const StockProvider = ({ children }) => {
     dividends: [],
   });
   const [status, setStatus] = useState('idle');
+  const [localDataExists, setLocalDataExists] = useState(true);
 
-  const getStockPortfolio = async () => {
+  const loadStockPortfolioFromStorage = () => {
     setStatus('pending');
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('using dev data');
-    }
+    const weeklyBalancesItem = localStorage.getItem('weeklyBalances');
+    const weeklyBalances = JSON.parse(weeklyBalancesItem);
+
     const {
       holdings,
       totalInvested,
@@ -32,8 +33,43 @@ export const StockProvider = ({ children }) => {
       labels,
       balances,
       dividends,
-    } = await getWeeklyBalances();
+    } = weeklyBalances;
+
+    setStockData({
+      holdings,
+      totalInvested,
+      realizedGains,
+      labels,
+      balances,
+      dividends,
+    });
     setStatus('resolved');
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem('weeklyBalances') !== null) {
+      loadStockPortfolioFromStorage();
+    } else {
+      setLocalDataExists(false);
+    }
+  }, []);
+
+  const getStockPortfolio = async () => {
+    setStatus('pending');
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('using dev data');
+    }
+
+    const weeklyBalances = await getWeeklyBalances();
+    const {
+      holdings,
+      totalInvested,
+      realizedGains,
+      labels,
+      balances,
+      dividends,
+    } = weeklyBalances;
 
     // TODO verify data
     // setStatus('rejected');
@@ -45,9 +81,18 @@ export const StockProvider = ({ children }) => {
       balances,
       dividends,
     });
+    setStatus('resolved');
+
+    localStorage.setItem('weeklyBalances', JSON.stringify(weeklyBalances));
+    setLocalDataExists(true);
   };
 
-  const value = { stockData, status, getStockPortfolio };
+  const value = {
+    stockData,
+    status,
+    localDataExists,
+    getStockPortfolio,
+  };
 
   return (
     <StockContext.Provider value={value}>{children}</StockContext.Provider>

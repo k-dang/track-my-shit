@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
 import { useStock } from '../../context/StockContext';
 
 // components
@@ -8,7 +7,9 @@ import CustomToggleButton from '../mui-overrides/CustomToggleButton';
 import CustomToggleButtonGroup from '../mui-overrides/CustomToggleButtonGroup';
 import PortfolioTable from '../PortfolioTable';
 import PortfolioDetails from '../PortfolioDetails';
-import { Grid, CircularProgress, Container, Alert } from '@mui/material';
+import { Grid, Container, Alert, Typography } from '@mui/material';
+import CenteredProgress from '../CenteredProgress';
+import MissingData from '../MissingData';
 import './Portfolio.css';
 
 const lineGraphOptions = {
@@ -64,7 +65,6 @@ const holdingsGraphOptions = {
 const Portfolio = () => {
   const [alignment, setAlignment] = useState('year');
   const [startingWeek, setStartingWeek] = useState(0);
-  const location = useLocation();
   const {
     stockData: {
       holdings,
@@ -75,18 +75,15 @@ const Portfolio = () => {
       dividends,
     },
     status,
+    localDataExists,
   } = useStock();
 
-  if (status === 'idle') {
-    return <Navigate to="/" state={{ from: location }} />;
+  if (!localDataExists) {
+    return <MissingData />;
   }
 
-  if (status === 'pending') {
-    return (
-      <Container className="center-container">
-        <CircularProgress />
-      </Container>
-    );
+  if (status === 'idle' || status === 'pending') {
+    return <CenteredProgress />;
   }
 
   if (status === 'rejected') {
@@ -167,7 +164,13 @@ const Portfolio = () => {
 
   return (
     <Grid container spacing={2} className="portfolio-container">
-      <Grid item xs={12}>
+      <Grid item xs={10}>
+        <Typography variant="h4" color="textPrimary">
+          Portfolio
+        </Typography>
+      </Grid>
+
+      <Grid item xs={12} className="row-center">
         <PortfolioDetails
           lastBalance={lastBalance}
           totalInvested={totalInvested}
@@ -176,7 +179,7 @@ const Portfolio = () => {
         />
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid item xs={12} className="row-center">
         <CustomToggleButtonGroup
           color="primary"
           size="small"
