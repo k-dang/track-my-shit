@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useStock } from '../../context/StockContext';
+import useParsePortfolio from '../../hooks/useParsePortfolio';
 import XLSX from 'xlsx';
 
 // components
@@ -12,8 +11,7 @@ import { QuestTrade, Interactive } from '../../constants/brokerConstants';
 
 const Parse = () => {
   const [selectedBroker, setSelectedBroker] = useState(null);
-  const navigate = useNavigate();
-  const { getStockPortfolio } = useStock();
+  const [parsePortfolio] = useParsePortfolio();
 
   const onButtonToggle = (value) => {
     setSelectedBroker(value);
@@ -48,14 +46,12 @@ const Parse = () => {
 
     reader.readAsArrayBuffer(file);
 
-    await getStockPortfolio();
-    navigate('/');
+    await parsePortfolio();
   };
 
   const devNavigation = async () => {
     if (process.env.NODE_ENV === 'development') {
-      await getStockPortfolio();
-      navigate('/');
+      await parsePortfolio();
     }
   };
 

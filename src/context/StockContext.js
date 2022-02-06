@@ -10,7 +10,7 @@ export const useStock = () => {
 
 export const StockProvider = ({ children }) => {
   const [stockData, setStockData] = useState({
-    holdings: [],
+    holdings: {},
     totalInvested: 0,
     realizedGains: 0,
     labels: [],
@@ -25,7 +25,6 @@ export const StockProvider = ({ children }) => {
 
     const weeklyBalancesItem = localStorage.getItem('weeklyBalances');
     const weeklyBalances = JSON.parse(weeklyBalancesItem);
-
     const {
       holdings,
       totalInvested,
@@ -46,15 +45,7 @@ export const StockProvider = ({ children }) => {
     setStatus('resolved');
   };
 
-  useEffect(() => {
-    if (localStorage.getItem('weeklyBalances') !== null) {
-      loadStockPortfolioFromStorage();
-    } else {
-      setLocalDataExists(false);
-    }
-  }, []);
-
-  const getStockPortfolio = async () => {
+  const parseStockPortfolio = async () => {
     setStatus('pending');
 
     if (process.env.NODE_ENV === 'development') {
@@ -87,11 +78,19 @@ export const StockProvider = ({ children }) => {
     setLocalDataExists(true);
   };
 
+  useEffect(() => {
+    if (localStorage.getItem('weeklyBalances') !== null) {
+      loadStockPortfolioFromStorage();
+    } else {
+      setLocalDataExists(false);
+    }
+  }, []);
+
   const value = {
     stockData,
     status,
     localDataExists,
-    getStockPortfolio,
+    parseStockPortfolio,
   };
 
   return (
