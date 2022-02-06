@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useStock } from '../../context/StockContext';
 
 // components
-import { Line, Bar } from 'react-chartjs-2';
+import PortfolioLineGraph from '../graphs/PortfolioLineGraph';
+import DividendBarGraph from '../graphs/DividendBarGraph';
+import HoldingsBarGraph from '../graphs/HoldingsBarGraph';
 import CustomToggleButton from '../mui-overrides/CustomToggleButton';
 import CustomToggleButtonGroup from '../mui-overrides/CustomToggleButtonGroup';
 import PortfolioTable from '../PortfolioTable';
@@ -11,56 +13,6 @@ import { Grid, Container, Alert, Typography } from '@mui/material';
 import CenteredProgress from '../CenteredProgress';
 import MissingData from '../MissingData';
 import './Portfolio.css';
-
-const lineGraphOptions = {
-  scales: {
-    yAxis: {
-      min: 0,
-    },
-  },
-  plugins: {
-    title: {
-      display: true,
-      text: 'Overall P/L',
-      font: {
-        size: 16,
-      },
-    },
-    legend: {
-      display: false,
-    },
-  },
-};
-
-const dividendGraphOptions = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'Dividends',
-      font: {
-        size: 16,
-      },
-    },
-    legend: {
-      display: false,
-    },
-  },
-};
-
-const holdingsGraphOptions = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'Holdings',
-      font: {
-        size: 16,
-      },
-    },
-    legend: {
-      display: false,
-    },
-  },
-};
 
 const Portfolio = () => {
   const [alignment, setAlignment] = useState('year');
@@ -95,55 +47,6 @@ const Portfolio = () => {
       </Container>
     );
   }
-
-  const portfolioGraphData = {
-    labels: labels.slice(startingWeek),
-    datasets: [
-      {
-        label: 'Value',
-        data: balances.slice(startingWeek),
-        fill: {
-          target: 'origin',
-          above: 'rgba(54, 162, 235, 0.2)',
-        },
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-      },
-    ],
-  };
-
-  const dividendsGraphData = {
-    labels: labels,
-    datasets: [
-      {
-        label: 'Dividends',
-        data: dividends,
-        backgroundColor: 'rgba(153, 102, 255, 0.6)',
-      },
-    ],
-  };
-
-  const holdingsMarket = Object.keys(holdings).reduce((previous, key) => {
-    return [...previous, holdings[key].marketPrice * holdings[key].quantity];
-  }, []);
-  const holdingsAverage = Object.keys(holdings).reduce((previous, key) => {
-    return [...previous, holdings[key].averagePrice * holdings[key].quantity];
-  }, []);
-  const holdingsGraphData = {
-    labels: Object.keys(holdings),
-    datasets: [
-      {
-        label: 'Market Value',
-        data: holdingsMarket,
-        backgroundColor: 'rgba(255, 159, 64, 0.5)',
-      },
-      {
-        label: 'Total Cost',
-        data: holdingsAverage,
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-    ],
-  };
 
   const lastBalance = balances[balances.length - 1];
   const totalDividends = dividends.reduce((p, c) => p + c);
@@ -193,21 +96,25 @@ const Portfolio = () => {
       </Grid>
 
       <Grid item xs={12}>
-        {portfolioGraphData ? (
-          <Line data={portfolioGraphData} options={lineGraphOptions} />
+        {balances.length > 0 ? (
+          <PortfolioLineGraph
+            labels={labels}
+            balances={balances}
+            startingWeek={startingWeek}
+          />
         ) : null}
       </Grid>
 
       <Grid container item xs={12}>
         <Grid item xs={6}>
-          {dividendsGraphData ? (
-            <Bar data={dividendsGraphData} options={dividendGraphOptions} />
+          {dividends.length > 0 ? (
+            <DividendBarGraph labels={labels} dividends={dividends} />
           ) : null}
         </Grid>
 
         <Grid item xs={6}>
-          {holdings ? (
-            <Bar data={holdingsGraphData} options={holdingsGraphOptions} />
+          {Object.keys(holdings).length > 0 ? (
+            <HoldingsBarGraph holdings={holdings} />
           ) : null}
         </Grid>
       </Grid>
