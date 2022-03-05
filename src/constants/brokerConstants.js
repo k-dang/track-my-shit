@@ -1,3 +1,3 @@
-export const QuestTrade = 'questtrade';
-export const Interactive = 'interactive';
-export const TDAmeritrade = 'td';
+export const QuestTrade = 'questrade';
+export const Interactive = 'interactivebrokers';
+export const TDAmeritrade = 'tdameritrade';
