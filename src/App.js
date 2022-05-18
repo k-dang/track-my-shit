@@ -34,7 +34,7 @@ const App = () => {
 
   useEffect(() => {
     WebAssembly.instantiateStreaming(
-      fetch('alphaVantageApi.wasm'),
+      fetch('lib.wasm'),
       window.go.importObject
     )
       .then((result) => {
